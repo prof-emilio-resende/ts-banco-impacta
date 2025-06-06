@@ -1,4 +1,4 @@
-import { BankAccount } from '../src/entities/BankAccount';
+import { CheckingAccount, SavingsAccount } from '../src/entities/BankAccount';
 
 describe('BankAccount', () => {
     it('should create a bank account with valid data', () => {
@@ -8,12 +8,17 @@ describe('BankAccount', () => {
         const expectedOwner = 'Emilio Resende';
         
         // Act
-        const account = new BankAccount(expectedBalance, expectedAccountNumber, expectedOwner);
+        const savingAccount = new SavingsAccount(expectedBalance, expectedAccountNumber, expectedOwner);
+        const checkingAccount = new CheckingAccount(expectedBalance, expectedAccountNumber, expectedOwner);
         
         // Assert
-        expect(account.balance).toBe(expectedBalance);
-        expect(account.accountNumber).toBe(expectedAccountNumber);
-        expect(account.owner).toBe(expectedOwner);
+        expect(savingAccount.balance).toBe(expectedBalance);
+        expect(savingAccount.accountNumber).toBe(expectedAccountNumber);
+        expect(savingAccount.owner).toBe(expectedOwner);
+
+        expect(checkingAccount.balance).toBe(expectedBalance);
+        expect(checkingAccount.accountNumber).toBe(expectedAccountNumber);
+        expect(checkingAccount.owner).toBe(expectedOwner);
     });
 
     it('should deposit money into the account', () => {
@@ -23,25 +28,71 @@ describe('BankAccount', () => {
         const expectedBalance = initialBalance + depositAmount;
         
         // Act
-        const account = new BankAccount(initialBalance, '123456789', 'Emilio Resende');
-        account.deposit(depositAmount);
+        const savingAccount = new SavingsAccount(initialBalance, '123456789', 'Emilio Resende');
+        const checkingAccount = new CheckingAccount(initialBalance, '123456789', 'Emilio Resende');
+        savingAccount.deposit(depositAmount);
+        checkingAccount.deposit(depositAmount);
         
         // Assert
-        expect(account.balance).toBe(expectedBalance);
+        expect(savingAccount.balance).toBe(expectedBalance);
+        expect(checkingAccount.balance).toBe(expectedBalance);
     });
 
-    it('should withdraw money from the account', () => {
+    it('should withdraw money from the savings account', () => {
         // Arrange
         const initialBalance = 1000;
         const depositAmount = 500;
         const expectedBalance = initialBalance - depositAmount;
         
         // Act
-        const account = new BankAccount(initialBalance, '123456789', 'Emilio Resende');
+        const account = new SavingsAccount(initialBalance, '123456789', 'Emilio Resende');
         account.withdraw(depositAmount);
         
         // Assert
         expect(account.balance).toBe(expectedBalance);
+    });
+
+    it('should withdraw money from the checking account', () => {
+        // Arrange
+        const initialBalance = 1000;
+        const depositAmount = 500;
+        const expectedBalance = initialBalance - depositAmount;
+        
+        // Act
+        const account = new CheckingAccount(initialBalance, '123456789', 'Emilio Resende');
+        account.withdraw(depositAmount);
+        
+        // Assert
+        expect(account.balance).toBe(expectedBalance);
+    });
+
+    it('should withdraw money from the checking account using the overdraft', () => {
+        // Arrange
+        const initialBalance = 0;
+        const withdrawAmount = 500;
+        const overdraftLimit = 500;
+        const expectedBalance = initialBalance - withdrawAmount;
+        
+        // Act
+        const account = new CheckingAccount(initialBalance, '123456789', 'Emilio Resende', overdraftLimit);
+        account.withdraw(withdrawAmount);
+        
+        // Assert
+        expect(account.balance).toBe(expectedBalance);
+    });
+
+    it('should NOT withdraw money from the savings account if no funds', () => {
+        // Arrange
+        const initialBalance = 0;
+        const withdrawAmount = 500;
+        const expectedBalance = 0
+        
+        // Act
+        const account = new SavingsAccount(initialBalance, '123456789', 'Emilio Resende');
+        account.withdraw(withdrawAmount);
+        
+        // Assert
+        expect(account.balance).toBe(initialBalance);
     });
 
     it('should transfer money from one account into another', () => {
@@ -52,8 +103,8 @@ describe('BankAccount', () => {
         const expectedBalance = 500;
         
         // Act
-        const accountA = new BankAccount(initialBalanceA, '123456780', 'Emilio Resende');
-        const accountB = new BankAccount(initialBalanceB, '123456789', 'Emilio Resende 2');
+        const accountA = new CheckingAccount(initialBalanceA, '123456780', 'Emilio Resende');
+        const accountB = new SavingsAccount(initialBalanceB, '123456789', 'Emilio Resende 2');
         accountA.transfer(accountB, transferAmount);
         
         // Assert
