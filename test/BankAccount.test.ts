@@ -75,10 +75,11 @@ describe('BankAccount', () => {
         
         // Act
         const account = new CheckingAccount(initialBalance, '123456789', 'Emilio Resende', overdraftLimit);
-        account.withdraw(withdrawAmount);
-        
+        account.withdraw(withdrawAmount)
+
         // Assert
         expect(account.balance).toBe(expectedBalance);
+
     });
 
     it('should NOT withdraw money from the savings account if no funds', () => {
@@ -89,7 +90,7 @@ describe('BankAccount', () => {
         
         // Act
         const account = new SavingsAccount(initialBalance, '123456789', 'Emilio Resende');
-        account.withdraw(withdrawAmount);
+        expect(() => account.withdraw(withdrawAmount)).toThrow('Withdraw amount must be lower than balance');
         
         // Assert
         expect(account.balance).toBe(initialBalance);
